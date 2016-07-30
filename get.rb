@@ -1,6 +1,6 @@
-require 'json'
 require 'net/http'
-require 'pg'
+
+load 'common.rb'
 
 
 class SlackArchive
@@ -25,12 +25,12 @@ class SlackArchive
     3 => 'groups'
   }
 
-  def initialize()
-    keys = open('key.json') do |io|
-      JSON.load(io)
-    end
-    @slackKey = keys['slack-api-key']
+  def initialize(teamname)
+    @teamname = teamname
+    @slackKey = getconfig()[teamname]['slack-api-key']
     @newmsg = 0
+    puts "start archiving team " + teamname
+    @logfile = File.open('slackapi_' + @teamname + '.log', 'w')
   end
 
   def slackapi(apiname, param)
@@ -44,6 +44,8 @@ class SlackArchive
       h.request(request).body
     end
     response = JSON.parse(response)
+    @logfile.puts('api access:' + apiname + ' ' + param.to_s)
+    @logfile.puts('result:' + response.to_s)
     if response['ok'] == true
       response
     else
@@ -132,8 +134,7 @@ class SlackArchive
   end
 
   def archive()
-    @pgcon = PG::connect(:host => 'localhost', :user => 'kawata', :dbname => 'slack', :password => 'hoge')
-    @pgcon.internal_encoding= 'UTF-8'
+    @pgcon = pgconnect(@teamname)
     saveUserLists()
     @@channel_types.each_pair{|type, name|
       puts 'starting to archive channels of type ' + name
@@ -167,7 +168,13 @@ class SlackArchive
       end
     }
     puts 'new msg:' + @newmsg.to_s
+    close()
+  end
+  def close()
+    @logfile.close()
   end
 end
 
-SlackArchive.new().archive()
+getconfig().each_key{|teamname|
+  SlackArchive.new(teamname).archive()
+}

@@ -1,21 +1,16 @@
 require 'sinatra'
-require 'pg'
 
-def pgconnect()
-  res = PG::connect(:host => 'localhost', :user => 'kawata', :dbname => 'slack', :password => 'hoge')
-  res.internal_encoding= 'UTF-8'
-  res
-end
+load 'common.rb'
 
-def hoge()
-  'hoge'
-end
 get '/' do
-  'Hello, sinatra'
+  @config = getconfig()
+  p @config
+  erb :top
 end
 
-get '/channels' do
-  pgcon = pgconnect()
+get '/:teamname/channels' do
+  @teamname = params['teamname']
+  pgcon = pgconnect(@teamname)
   @channels = pgcon.exec('SELECT * FROM channels')
   @channels = @channels.map{|channel|
     channel['num_messages'] = pgcon.exec(
@@ -31,8 +26,9 @@ get '/channels' do
   erb :channels
 end
 
-get '/channel/:channelname' do
-  pgcon = pgconnect()
+get '/:teamname/channel/:channelname' do
+  @teamname = params['teamname']
+  pgcon = pgconnect(@teamname)
   @userhash = {}
   pgcon.exec('SELECT * FROM users').each{|user|
     @userhash[user['user_id']] = user
