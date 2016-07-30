@@ -106,22 +106,49 @@ class SlackArchive
     end
   end
 
-  def archive()
+  def saveUserLists()
+    @userhash = {}
+    usersList = slackapi('users.list', {})['members']
+    usersList.each do |user|
+      res = @pgcon.exec('SELECT * FROM users WHERE user_id = $1', [user['id']])
+      userstr = 'user id=' + user['id'] + ' name='+ user['name']
+      @userhash[user['id']] = user
+      if res.num_tuples > 0
+        puts userstr + ' found in DB. updating'
+        @pgcon.exec(
+          'UPDATE users SET user_name = $1, user_image = $2 where user_id = $3',
+          [user['name'], user['profile']['image_192'] , user['id']]
+        )
+      else
+        puts userstr + ' not found in DB. inserting'
+        @pgcon.exec(
+          'INSERT INTO users (user_id, user_name, user_image) VALUES ($1, $2, $3)',
+          [user['id'], user['name'], user['profile']['image_192']]
+        )
+      end
+    end
+  end
 
+  def archive()
     @pgcon = PG::connect(:host => 'localhost', :user => 'kawata', :dbname => 'slack', :password => 'hoge')
     @pgcon.internal_encoding= 'UTF-8'
+    saveUserLists()
     @@channel_types.each_pair{|type, name|
       puts 'starting to archive channels of type ' + name
       apiname = @@channel_apinames[type]
       channelsList = slackapi(apiname + '.list', {})[@@channel_channelskey[type]]
       channelsList.each do |channel|
-        res =@pgcon.exec('SELECT * FROM channels where channel_id = $1', [channel['id']])
+        res = @pgcon.exec('SELECT * FROM channels where channel_id = $1', [channel['id']])
         if name == 'im'
-          channel['name'] = 'im with ' + channel['user']
+          channel['name'] = 'im_with_' + @userhash[channel['user']]['name']
         end
         channelstr = 'channel id=' + channel['id'] + ' name=' + channel['name']
         if res.num_tuples > 0
-          puts channelstr + ' found in DB.'
+          puts channelstr + ' found in DB. updating'
+          @pgcon.exec(
+            'UPDATE channels SET channel_name = $1 where channel_id = $2',
+            [channel['name'], channel['id']]
+          )
         else
           puts channelstr + ' NOT found in DB. inserting'
           @pgcon.exec(

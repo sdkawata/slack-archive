@@ -7,7 +7,8 @@ create table channels(
 drop table if exists users;
 create table users(
        user_id text,
-       user_name text
+       user_name text,
+       user_image text
 );
 drop table if exists messages;
 create table messages(

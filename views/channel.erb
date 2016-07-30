@@ -2,6 +2,7 @@
 <body>
 channels: <%= @channelname %><br>
 <% @messages.each do |message|%>
+<span style="font-weight:bold"><%= message['user_name']  %>:</span>
 <%= @escape.call(message['text']) %>
 <span style="color:#ccc;font-size:80%"><%= message['ts'] %>:<%= message['created'] %></span>
 <br>
