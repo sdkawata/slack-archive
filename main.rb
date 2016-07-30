@@ -17,6 +17,17 @@ end
 get '/channels' do
   pgcon = pgconnect()
   @channels = pgcon.exec('SELECT * FROM channels')
+  @channels = @channels.map{|channel|
+    channel['num_messages'] = pgcon.exec(
+      'SELECT COUNT(*) AS count FROM messages WHERE channel_id = $1',
+      [channel['channel_id']]
+    )[0]['count']
+    channel['lastupdated'] = pgcon.exec(
+      'SELECT MAX(created) AS min FROM messages WHERE channel_id = $1',
+      [channel['channel_id']]
+    )[0]['min']
+    channel
+  }
   erb :channels
 end
 
