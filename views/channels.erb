@@ -1,0 +1,9 @@
+<html>
+<body>
+<% @channels.each do |channel|%>
+<%= channel['channel_id'] %>
+<a href="/channel/<%= channel['channel_name'] %>"><%= channel['channel_name'] %></a>
+<br>
+<% end %>
+</body>
+</html>
