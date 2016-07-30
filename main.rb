@@ -41,7 +41,7 @@ get '/channel/:channelname' do
   res = pgcon.exec('SELECT * FROM channels where channel_name = $1', [@channelname])
   @channelid = res[0]['channel_id']
   @messages = pgcon.exec(
-    'SELECT * FROM messages JOIN users ON users.user_id = messages.user_id WHERE channel_id = $1 ORDER BY created DESC',
+    'SELECT * FROM messages LEFT JOIN users ON users.user_id = messages.user_id WHERE channel_id = $1 ORDER BY created DESC',
     [@channelid]
   )
   @escape = lambda {|s|
