@@ -30,6 +30,7 @@ class SlackArchive
       JSON.load(io)
     end
     @slackKey = keys['slack-api-key']
+    @newmsg = 0
   end
 
   def slackapi(apiname, param)
@@ -92,6 +93,7 @@ class SlackArchive
           puts 'same message found in DB'
           next
         end
+        @newmsg += 1
         message['created'] = Time.at(message['ts'].split('.')[0].to_i)
         @pgcon.exec(
           'INSERT INTO messages (channel_id, user_id, text, created,ts) VALUES ($1,$2,$3,$4,$5)',
@@ -164,6 +166,7 @@ class SlackArchive
         archiveChannel(channel)
       end
     }
+    puts 'new msg:' + @newmsg.to_s
   end
 end
 
