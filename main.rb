@@ -4,12 +4,13 @@ load 'common.rb'
 
 get '/' do
   @config = getconfig()
-  p @config
+  @title = "slack-archive"
   haml :top
 end
 
 get '/:teamname/channels' do
   @teamname = params['teamname']
+  @title = "list of channels in #{@teamname}"
   pgcon = pgconnect(@teamname)
   @channels = pgcon.exec('SELECT * FROM channels')
   @channels = @channels.map{|channel|
@@ -34,6 +35,7 @@ get '/:teamname/channel/:channelname' do
     @userhash[user['user_id']] = user
   }
   @channelname = params['channelname']
+  @title = "messages of channel #{@channelname}"
   res = pgcon.exec('SELECT * FROM channels where channel_name = $1', [@channelname])
   @channelid = res[0]['channel_id']
   @messages = pgcon.exec(
