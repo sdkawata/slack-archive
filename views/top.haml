@@ -1,0 +1,6 @@
+%h1
+  Slack Archiver
+- @config.each_key do |teamname|
+  %a{href: "/#{teamname}/channels"}
+    #{teamname}
+  <br>

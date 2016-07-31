@@ -1,0 +1,10 @@
+- @channels.each do |channel|
+  #{channel['channel_id']}
+  %a{href: "/#{@teamname}/channel/#{channel['channel_name']}"}
+    #{channel['channel_name']}
+  %span{style:"color:#777"}
+    - if channel['num_messages'].to_i > 0
+      #{channel['num_messages']} messages, last updated #{channel['lastupdated']}
+    - else
+      0 message
+  <br>

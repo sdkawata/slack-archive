@@ -5,7 +5,7 @@ load 'common.rb'
 get '/' do
   @config = getconfig()
   p @config
-  erb :top
+  haml :top
 end
 
 get '/:teamname/channels' do
@@ -23,7 +23,7 @@ get '/:teamname/channels' do
     )[0]['min']
     channel
   }
-  erb :channels
+  haml :channels
 end
 
 get '/:teamname/channel/:channelname' do
@@ -49,5 +49,5 @@ get '/:teamname/channel/:channelname' do
       end
     }.gsub(/</, '&lt;').gsub(/>/, '&gt;').gsub(/\n/, '<br>')
   }
-  erb :channel
+  haml :channel
 end
