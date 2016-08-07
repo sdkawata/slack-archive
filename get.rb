@@ -103,9 +103,10 @@ class SlackArchive
       end
       if history['has_more']
         meslatest = messages.sort_by{|message| message['created']}[0]['ts']
-        puts 'current latest ts=' + meslatest.to_s
+        mesoldest = messages.sort_by{|message| message['created']}.reverse[0]['ts']
+        puts 'current latest ts=#{meslatest} oldest ts=#{mesoldest}'
         if oldest != '0'
-          oldest = meslatest
+          oldest = mesoldest
         else
           latest = meslatest
         end
