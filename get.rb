@@ -96,15 +96,7 @@ class SlackArchive
           next
         end
         @newmsg += 1
-        message['created'] = Time.at(message['ts'].split('.')[0].to_i)
-        if message.include?('attachments')
-          message['attachments'].each do |attachment|
-            if !attachment.include?('fallback')
-              next
-            end
-            message['text'] = message['text'] + (message['text'] == '' ? '' : "\n") + "--\n" + attachment['fallback']
-          end
-        end
+        message = messageAddField(message)
         @pgcon.exec(
           'INSERT INTO messages (channel_id, user_id, text, created,ts) VALUES ($1,$2,$3,$4,$5)',
           [channel['id'],message['user'],message['text'],message['created'],message['ts']])
