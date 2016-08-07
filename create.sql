@@ -16,5 +16,6 @@ create table messages(
        user_id text,
        channel_id text,
        created timestamp,
-       ts text
+       ts text,
+       raw text
 );

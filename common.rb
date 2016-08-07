@@ -22,6 +22,7 @@ def pgconnect(teamname)
 end
 
 def messageAddField(message)
+  message['raw'] = JSON.generate(message)
   message['created'] = Time.at(message['ts'].split('.')[0].to_i)
   if message.include?('attachments')
     message['attachments'].each do |attachment|

@@ -98,8 +98,8 @@ class SlackArchive
         @newmsg += 1
         message = messageAddField(message)
         @pgcon.exec(
-          'INSERT INTO messages (channel_id, user_id, text, created,ts) VALUES ($1,$2,$3,$4,$5)',
-          [channel['id'],message['user'],message['text'],message['created'],message['ts']])
+          'INSERT INTO messages (channel_id, user_id, text, created, ts, raw) VALUES ($1,$2,$3,$4,$5,$6)',
+          [channel['id'],message['user'],message['text'],message['created'],message['ts'],message['raw']])
       end
       if history['has_more']
         meslatest = messages.sort_by{|message| message['created']}[0]['ts']
